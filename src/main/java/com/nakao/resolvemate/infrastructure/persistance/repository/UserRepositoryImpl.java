@@ -28,7 +28,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return repository.findAll().stream().map(UserMapper::toModel).collect(Collectors.toList());
+        return repository.findAll().stream()
+                .map(UserMapper::toModel)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -48,7 +50,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findByRole(Role role) {
-        return repository.findByRole(role).stream().map(UserMapper::toModel).collect(Collectors.toList());
+        return repository.findByRole(role).stream()
+                .map(UserMapper::toModel)
+                .collect(Collectors.toList());
     }
 
 }

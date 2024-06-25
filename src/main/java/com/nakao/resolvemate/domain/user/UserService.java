@@ -15,7 +15,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(UserMapper::toDTO).collect(Collectors.toList());
+        return userRepository.findAll().stream()
+                .map(UserMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public UserDTO getUserById(UUID id) {

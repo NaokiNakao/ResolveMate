@@ -29,7 +29,9 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public List<Ticket> findAll() {
-        return repository.findAll().stream().map(TicketMapper::toModel).collect(Collectors.toList());
+        return repository.findAll().stream()
+                .map(TicketMapper::toModel)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -44,13 +46,15 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public List<Ticket> findByCustomer(User customer) {
-        return repository.findByCustomer(UserMapper.toEntity(customer)).stream().map(TicketMapper::toModel)
+        return repository.findByCustomer(UserMapper.toEntity(customer)).stream()
+                .map(TicketMapper::toModel)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Ticket> findBySupportAgent(User supportAgent) {
-        return repository.findBySupportAgent(UserMapper.toEntity(supportAgent)).stream().map(TicketMapper::toModel)
+        return repository.findBySupportAgent(UserMapper.toEntity(supportAgent)).stream()
+                .map(TicketMapper::toModel)
                 .collect(Collectors.toList());
     }
 

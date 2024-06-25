@@ -1,5 +1,7 @@
 package com.nakao.resolvemate.application.rest;
 
+import com.nakao.resolvemate.domain.comment.Comment;
+import com.nakao.resolvemate.domain.comment.CommentDTO;
 import com.nakao.resolvemate.domain.ticket.Ticket;
 import com.nakao.resolvemate.domain.ticket.TicketDTO;
 import com.nakao.resolvemate.domain.ticket.TicketService;
@@ -34,6 +36,18 @@ public class TicketController {
     public ResponseEntity<TicketDTO> getTicketById(@PathVariable UUID id) {
         TicketDTO ticket = ticketService.getTicketById(id);
         return new ResponseEntity<>(ticket, HttpStatus.OK);
+    }
+
+    @PostMapping("/{ticketId}/comments")
+    public ResponseEntity<CommentDTO> createComment(@PathVariable UUID ticketId, @RequestBody Comment comment) {
+        CommentDTO createdComment = ticketService.createComment(ticketId, comment);
+        return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{ticketId}/comments")
+    public ResponseEntity<List<CommentDTO>> getCommentsByTicketId(@PathVariable UUID ticketId) {
+        List<CommentDTO> comments = ticketService.getCommentsByTicketId(ticketId);
+        return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
 }

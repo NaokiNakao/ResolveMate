@@ -1,7 +1,5 @@
 package com.nakao.resolvemate.domain.comment;
 
-import com.nakao.resolvemate.domain.ticket.Ticket;
-import com.nakao.resolvemate.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +12,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment {
+public class CommentDTO {
     private UUID id;
-    private Ticket ticket;
-    private User user;
+    private UUID ticketId;
+    private UUID userId;
     private String content;
     private Date createdAt;
 }
