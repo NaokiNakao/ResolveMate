@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: ResolveMate
+  profiles:
+    active: dev
+
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: ${DRIVER_CLASS_NAME}
+
+server:
+  port: ${SERVER_PORT}
+
+app:
+  security:
+    jwt:
+      secret-key: ${SECRET_KEY}
+      expiration: ${EXPIRATION}
+
+
