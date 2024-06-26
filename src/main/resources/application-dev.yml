@@ -2,3 +2,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ResolveMate
+    username: postgres
+    password: postgres
+
+app:
+  security:
+    jwt:
+      secret-key: 493F2571314538494B4E47592A47293D5A4865673771446D636E7267786D7927
+      expiration: 86400000
+
+  file:
+    max-size: 10485760
