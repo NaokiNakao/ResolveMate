@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -26,10 +28,15 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     @Override
-    public List<Comment> findByTicket(Ticket ticket) {
-        return repository.findByTicket(TicketMapper.toEntity(ticket)).stream()
+    public List<Comment> findAllByTicket(Ticket ticket) {
+        return repository.findAllByTicket(TicketMapper.toEntity(ticket)).stream()
                 .map(CommentMapper::toModel)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Comment> findById(UUID id) {
+        return repository.findById(id).map(CommentMapper::toModel);
     }
 
 }

@@ -1,14 +1,14 @@
 package com.nakao.resolvemate.infrastructure.persistance.repository.jpa;
 
+import com.nakao.resolvemate.infrastructure.persistance.entity.AttachmentEntity;
 import com.nakao.resolvemate.infrastructure.persistance.entity.CommentEntity;
-import com.nakao.resolvemate.infrastructure.persistance.entity.TicketEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface JpaCommentRepository extends JpaRepository<CommentEntity, UUID> {
+public interface JpaAttachmentRepository extends JpaRepository<AttachmentEntity, UUID> {
 
-    List<CommentEntity> findAllByTicket(TicketEntity ticket);
+    List<AttachmentEntity> findAllByComment(CommentEntity comment);
 
 }

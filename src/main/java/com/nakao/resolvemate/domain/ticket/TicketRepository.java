@@ -16,8 +16,8 @@ public interface TicketRepository {
 
     int countBySupportAgent(User supportAgent);
 
-    List<Ticket> findByCustomer(User customer);
+    List<Ticket> findAllByCustomer(User customer);
 
-    List<Ticket> findBySupportAgent(User supportAgent);
+    List<Ticket> findAllBySupportAgent(User supportAgent);
 
 }

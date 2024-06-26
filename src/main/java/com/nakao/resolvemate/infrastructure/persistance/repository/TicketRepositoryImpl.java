@@ -45,15 +45,15 @@ public class TicketRepositoryImpl implements TicketRepository {
     }
 
     @Override
-    public List<Ticket> findByCustomer(User customer) {
-        return repository.findByCustomer(UserMapper.toEntity(customer)).stream()
+    public List<Ticket> findAllByCustomer(User customer) {
+        return repository.findAllByCustomer(UserMapper.toEntity(customer)).stream()
                 .map(TicketMapper::toModel)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Ticket> findBySupportAgent(User supportAgent) {
-        return repository.findBySupportAgent(UserMapper.toEntity(supportAgent)).stream()
+    public List<Ticket> findAllBySupportAgent(User supportAgent) {
+        return repository.findAllBySupportAgent(UserMapper.toEntity(supportAgent)).stream()
                 .map(TicketMapper::toModel)
                 .collect(Collectors.toList());
     }

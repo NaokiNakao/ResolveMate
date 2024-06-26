@@ -1,6 +1,5 @@
 package com.nakao.resolvemate.domain.attachment;
 
-import com.nakao.resolvemate.domain.comment.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +11,9 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Attachment {
+public class AttachmentDTO {
     private UUID id;
-    private Comment comment;
+    private UUID commentId;
     private String fileName;
     private String fileType;
     private byte[] data;

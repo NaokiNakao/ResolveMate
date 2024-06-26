@@ -49,8 +49,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findByRole(Role role) {
-        return repository.findByRole(role).stream()
+    public List<User> findAllByRole(Role role) {
+        return repository.findAllByRole(role).stream()
                 .map(UserMapper::toModel)
                 .collect(Collectors.toList());
     }

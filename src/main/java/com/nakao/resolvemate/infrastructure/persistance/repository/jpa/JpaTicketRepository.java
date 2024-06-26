@@ -11,8 +11,8 @@ public interface JpaTicketRepository extends JpaRepository<TicketEntity, UUID> {
 
     int countBySupportAgent(UserEntity supportAgent);
 
-    List<TicketEntity> findByCustomer(UserEntity customer);
+    List<TicketEntity> findAllByCustomer(UserEntity customer);
 
-    List<TicketEntity> findBySupportAgent(UserEntity supportAgent);
+    List<TicketEntity> findAllBySupportAgent(UserEntity supportAgent);
 
 }

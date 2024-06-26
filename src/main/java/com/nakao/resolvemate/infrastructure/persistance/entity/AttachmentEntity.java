@@ -25,7 +25,10 @@ public class AttachmentEntity {
     private CommentEntity comment;
 
     @Column(nullable = false)
-    private String filename;
+    private String fileName;
+
+    @Column(nullable = false)
+    private String fileType;
 
     @Lob
     @Column(nullable = false)
