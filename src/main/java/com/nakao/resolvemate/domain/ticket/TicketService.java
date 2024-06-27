@@ -5,12 +5,12 @@ import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.user.UserRepository;
-import com.nakao.resolvemate.domain.util.AuthorizationService;
 import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -58,10 +58,6 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
 
-        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), ticket)) {
-            throw new UnauthorizedAccessException("Unauthorized access");
-        }
-
         return TicketMapper.toDTO(ticket);
     }
 
@@ -95,6 +91,15 @@ public class TicketService {
         } else if (currentUserRole == Role.SUPPORT_AGENT) {
             return ticketRepository.findAllBySupportAgent(currentUser);
         } else {
+            throw new UnauthorizedAccessException("Unauthorized access");
+        }
+    }
+
+    public void verifyAuthorization(UUID ticketId) {
+        User currentUser = securityService.getAuthenticatedUser();
+
+        if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
+                !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
     }

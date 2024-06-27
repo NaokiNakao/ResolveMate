@@ -14,4 +14,6 @@ public interface CommentRepository {
 
     Optional<Comment> findById(UUID id);
 
+    boolean hasAccessToComment(UUID commentId, UUID userId);
+
 }

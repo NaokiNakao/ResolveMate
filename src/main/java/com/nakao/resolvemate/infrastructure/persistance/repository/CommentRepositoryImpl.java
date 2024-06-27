@@ -39,4 +39,9 @@ public class CommentRepositoryImpl implements CommentRepository {
         return repository.findById(id).map(CommentMapper::toModel);
     }
 
+    @Override
+    public boolean hasAccessToComment(UUID commentId, UUID userId) {
+        return repository.hasAccessToComment(commentId, userId);
+    }
+
 }

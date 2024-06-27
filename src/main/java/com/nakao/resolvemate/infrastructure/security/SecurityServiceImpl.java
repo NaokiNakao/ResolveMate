@@ -14,8 +14,8 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserEntity user = (UserEntity) authentication.getPrincipal();
-        return UserMapper.toModel(user);
+        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
+        return UserMapper.toModel(currentUser);
     }
 
 }
