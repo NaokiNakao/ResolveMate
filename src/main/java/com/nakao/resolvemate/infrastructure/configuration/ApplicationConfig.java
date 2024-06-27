@@ -1,6 +1,7 @@
 package com.nakao.resolvemate.infrastructure.configuration;
 
 import com.nakao.resolvemate.domain.user.UserRepository;
+import com.nakao.resolvemate.infrastructure.persistance.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +40,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
+        return username -> userRepository.findByEmail(username).map(UserMapper::toEntity)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

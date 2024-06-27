@@ -19,7 +19,7 @@ public class CommentMapper {
         return CommentEntity.builder()
                 .id(comment.getId())
                 .ticket(TicketMapper.toEntity(comment.getTicket()))
-                .user(UserMapper.toEntity(comment.getUser()))
+                .user(comment.getUser() != null ? UserMapper.toEntity(comment.getUser()) : null)
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .build();

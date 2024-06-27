@@ -3,10 +3,11 @@ package com.nakao.resolvemate.infrastructure.auth;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.user.UserRepository;
+import com.nakao.resolvemate.infrastructure.persistance.entity.UserEntity;
+import com.nakao.resolvemate.infrastructure.persistance.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,8 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        UserDetails user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String token = jwtService.generateToken(user);
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        String token = jwtService.generateToken(UserMapper.toEntity(user));
         return new AuthResponse(token);
     }
 
@@ -35,7 +36,7 @@ public class AuthService {
                 .role(Role.valueOf(request.getRole()))
                 .build();
 
-        User createdUser = userRepository.save(user);
+        UserEntity createdUser = UserMapper.toEntity(userRepository.save(user));
         String token = jwtService.generateToken(createdUser);
         return new AuthResponse(token);
     }

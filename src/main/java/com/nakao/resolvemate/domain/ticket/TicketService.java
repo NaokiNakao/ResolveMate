@@ -5,11 +5,11 @@ import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.user.UserRepository;
-import com.nakao.resolvemate.domain.util.AAAService;
+import com.nakao.resolvemate.domain.util.AuthorizationService;
+import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +20,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final SecurityService securityService;
 
     /**
      * Creates a new ticket, assigns it to the authenticated user and a support agent,
@@ -29,9 +30,7 @@ public class TicketService {
      * @return the created TicketDTO
      */
     public TicketDTO createTicket(Ticket ticket) {
-        ticket.setCustomer(AAAService.getAuthenticatedUser());
         ticket.setSupportAgent(assignTicketToAgent());
-        ticket.setCreatedAt(new Date());
         return TicketMapper.toDTO(ticketRepository.save(ticket));
     }
 
@@ -59,7 +58,7 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
 
-        if (AAAService.doesNotHaveAccessToTicket(ticket)) {
+        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), ticket)) {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 
@@ -86,7 +85,7 @@ public class TicketService {
      * @throws UnauthorizedAccessException if the user does not have the necessary permissions
      */
     private List<Ticket> getTicketsForCurrentUser() {
-        User currentUser = AAAService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUser();
         Role currentUserRole = currentUser.getRole();
 
         if (currentUserRole == Role.ADMIN) {
