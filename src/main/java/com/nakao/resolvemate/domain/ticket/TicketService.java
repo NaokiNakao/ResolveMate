@@ -95,6 +95,12 @@ public class TicketService {
         }
     }
 
+    /**
+     * Verifies if the authenticated user has authorization to access the specified ticket.
+     *
+     * @param ticketId the ID of the ticket to check authorization against
+     * @throws UnauthorizedAccessException if the user does not have access to the ticket
+     */
     public void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
 

@@ -91,6 +91,12 @@ public class AttachmentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Verifies if the authenticated user has authorization to access the specified comment.
+     *
+     * @param commentId the ID of the comment to check authorization against
+     * @throws UnauthorizedAccessException if the user does not have access to the comment
+     */
     public void verifyAuthorization(UUID commentId) {
         User currentUser = securityService.getAuthenticatedUser();
 
