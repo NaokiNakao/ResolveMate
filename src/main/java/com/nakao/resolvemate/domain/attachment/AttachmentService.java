@@ -6,8 +6,9 @@ import com.nakao.resolvemate.domain.exception.FileHandlingException;
 import com.nakao.resolvemate.domain.exception.FileSizeLimitExceededException;
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
 import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
-import com.nakao.resolvemate.domain.util.AAAService;
+import com.nakao.resolvemate.domain.util.AuthorizationService;
 import com.nakao.resolvemate.domain.util.FileCompressionService;
+import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
     private final CommentRepository commentRepository;
+    private final SecurityService securityService;
 
     @Value("${app.file.max-size}")
     private Long MAX_FILE_SIZE;
@@ -32,7 +34,7 @@ public class AttachmentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
 
-        if (AAAService.doesNotHaveAccessToTicket(comment.getTicket())) {
+        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), comment.getTicket())) {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 
@@ -60,7 +62,7 @@ public class AttachmentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
 
-        if (AAAService.doesNotHaveAccessToTicket(comment.getTicket())) {
+        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), comment.getTicket())) {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 

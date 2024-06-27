@@ -4,12 +4,11 @@ import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
 import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
 import com.nakao.resolvemate.domain.ticket.Ticket;
 import com.nakao.resolvemate.domain.ticket.TicketRepository;
-import com.nakao.resolvemate.domain.user.User;
-import com.nakao.resolvemate.domain.util.AAAService;
+import com.nakao.resolvemate.domain.util.AuthorizationService;
+import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +19,7 @@ public class CommentService {
 
     private final TicketRepository ticketRepository;
     private final CommentRepository commentRepository;
+    private final SecurityService securityService;
 
     /**
      * Creates a new comment for a specific ticket.
@@ -34,15 +34,11 @@ public class CommentService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
 
-        if (AAAService.doesNotHaveAccessToTicket(ticket)) {
+        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), ticket)) {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 
-        User currentUser = AAAService.getAuthenticatedUser();
-
         comment.setTicket(ticket);
-        comment.setUser(currentUser);
-        comment.setCreatedAt(new Date());
         return CommentMapper.toDTO(commentRepository.save(comment));
     }
 
@@ -58,7 +54,7 @@ public class CommentService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
 
-        if (AAAService.doesNotHaveAccessToTicket(ticket)) {
+        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), ticket)) {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 

@@ -25,7 +25,7 @@ public class TicketMapper {
                 .description(ticket.getDescription())
                 .status(ticket.getStatus())
                 .priority(ticket.getPriority())
-                .customer(UserMapper.toEntity(ticket.getCustomer()))
+                .customer(ticket.getCustomer() != null ? UserMapper.toEntity(ticket.getCustomer()) : null)
                 .supportAgent(UserMapper.toEntity(ticket.getSupportAgent()))
                 .createdAt(ticket.getCreatedAt())
                 .build();
