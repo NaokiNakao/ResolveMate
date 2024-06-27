@@ -30,6 +30,17 @@ public class AttachmentService {
     @Value("${app.file.max-size}")
     private Long MAX_FILE_SIZE;
 
+    /**
+     * Creates a new attachment for a given comment.
+     *
+     * @param commentId the ID of the comment to which the attachment will be added
+     * @param file the file to be attached
+     * @return the created AttachmentDTO
+     * @throws ResourceNotFoundException if the comment is not found
+     * @throws UnauthorizedAccessException if the user does not have access to the ticket associated with the comment
+     * @throws FileSizeLimitExceededException if the file size exceeds the maximum allowed size
+     * @throws FileHandlingException if there is an error uploading the file
+     */
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
@@ -58,6 +69,14 @@ public class AttachmentService {
         }
     }
 
+    /**
+     * Retrieves all attachments for a given comment and decompresses the data.
+     *
+     * @param commentId the ID of the comment whose attachments are to be retrieved
+     * @return a list of AttachmentDTOs
+     * @throws ResourceNotFoundException if the comment is not found
+     * @throws UnauthorizedAccessException if the user does not have access to the ticket associated with the comment
+     */
     public List<AttachmentDTO> getAttachmentsByCommentId(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
