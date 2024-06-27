@@ -20,12 +20,14 @@ public class CommentController {
 
     @PostMapping("/{ticketId}")
     public ResponseEntity<CommentDTO> createComment(@PathVariable UUID ticketId, @RequestBody Comment comment) {
+        commentService.verifyAuthorization(ticketId);
         CommentDTO createdComment = commentService.createComment(ticketId, comment);
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
 
     @GetMapping("/{ticketId}")
     public ResponseEntity<List<CommentDTO>> getCommentsByTicketId(@PathVariable UUID ticketId) {
+        commentService.verifyAuthorization(ticketId);
         List<CommentDTO> comments = commentService.getCommentsByTicketId(ticketId);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }

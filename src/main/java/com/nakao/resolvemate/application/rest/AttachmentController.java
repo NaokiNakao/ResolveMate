@@ -22,12 +22,14 @@ public class AttachmentController {
     public ResponseEntity<AttachmentDTO> createAttachment(@PathVariable UUID commentId,
                                                           @RequestParam("file") MultipartFile file) {
 
+        attachmentService.verifyAuthorization(commentId);
         AttachmentDTO createdAttachment = attachmentService.createAttachment(commentId, file);
         return new ResponseEntity<>(createdAttachment, HttpStatus.CREATED);
     }
 
     @GetMapping("/{commentId}")
     private ResponseEntity<List<AttachmentDTO>> getAttachmentsByCommentId(@PathVariable UUID commentId) {
+        attachmentService.verifyAuthorization(commentId);
         List<AttachmentDTO> attachments = attachmentService.getAttachmentsByCommentId(commentId);
         return new ResponseEntity<>(attachments, HttpStatus.OK);
     }

@@ -6,16 +6,20 @@ import com.nakao.resolvemate.domain.exception.FileHandlingException;
 import com.nakao.resolvemate.domain.exception.FileSizeLimitExceededException;
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
 import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
-import com.nakao.resolvemate.domain.util.AuthorizationService;
+import com.nakao.resolvemate.domain.user.Role;
+import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.util.FileCompressionService;
 import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,17 +41,13 @@ public class AttachmentService {
      * @param file the file to be attached
      * @return the created AttachmentDTO
      * @throws ResourceNotFoundException if the comment is not found
-     * @throws UnauthorizedAccessException if the user does not have access to the ticket associated with the comment
      * @throws FileSizeLimitExceededException if the file size exceeds the maximum allowed size
      * @throws FileHandlingException if there is an error uploading the file
      */
+    @CacheEvict(value = "attachments", key = "#commentId")
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
-
-        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), comment.getTicket())) {
-            throw new UnauthorizedAccessException("Unauthorized access");
-        }
 
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new FileSizeLimitExceededException("The file is too large. Max size is " + MAX_FILE_SIZE + " bytes");
@@ -75,15 +75,11 @@ public class AttachmentService {
      * @param commentId the ID of the comment whose attachments are to be retrieved
      * @return a list of AttachmentDTOs
      * @throws ResourceNotFoundException if the comment is not found
-     * @throws UnauthorizedAccessException if the user does not have access to the ticket associated with the comment
      */
+    @Cacheable(value = "attachments", key = "#commentId")
     public List<AttachmentDTO> getAttachmentsByCommentId(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
-
-        if (AuthorizationService.doesNotHaveAccessToTicket(securityService.getAuthenticatedUser(), comment.getTicket())) {
-            throw new UnauthorizedAccessException("Unauthorized access");
-        }
 
         return attachmentRepository.findAllByComment(comment).stream()
                 .map(attachment -> {
@@ -93,6 +89,15 @@ public class AttachmentService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public void verifyAuthorization(UUID commentId) {
+        User currentUser = securityService.getAuthenticatedUser();
+
+        if (!commentRepository.hasAccessToComment(commentId, currentUser.getId()) &&
+                !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
+            throw new UnauthorizedAccessException("Unauthorized access");
+        }
     }
 
 }

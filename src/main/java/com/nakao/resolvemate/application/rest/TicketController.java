@@ -32,6 +32,7 @@ public class TicketController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TicketDTO> getTicketById(@PathVariable UUID id) {
+        ticketService.verifyAuthorization(id);
         TicketDTO ticket = ticketService.getTicketById(id);
         return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
