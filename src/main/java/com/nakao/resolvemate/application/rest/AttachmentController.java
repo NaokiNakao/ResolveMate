@@ -23,6 +23,7 @@ public class AttachmentController {
                                                           @RequestParam("file") MultipartFile file) {
 
         attachmentService.verifyAuthorization(commentId);
+        attachmentService.verifyFileSize(file.getSize());
         AttachmentDTO createdAttachment = attachmentService.createAttachment(commentId, file);
         return new ResponseEntity<>(createdAttachment, HttpStatus.CREATED);
     }

@@ -41,17 +41,12 @@ public class AttachmentService {
      * @param file the file to be attached
      * @return the created AttachmentDTO
      * @throws ResourceNotFoundException if the comment is not found
-     * @throws FileSizeLimitExceededException if the file size exceeds the maximum allowed size
      * @throws FileHandlingException if there is an error uploading the file
      */
     @CacheEvict(value = "attachments", key = "#commentId")
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
-
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new FileSizeLimitExceededException("The file is too large. Max size is " + MAX_FILE_SIZE + " bytes");
-        }
 
         try {
             byte[] compressedData = FileCompressionService.compressData(file.getBytes());
@@ -103,6 +98,18 @@ public class AttachmentService {
         if (!commentRepository.hasAccessToComment(commentId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
             throw new UnauthorizedAccessException("Unauthorized access");
+        }
+    }
+
+    /**
+     * Verifies if the given file size exceeds the maximum allowed file size.
+     *
+     * @param fileSize the size of the file to verify, in bytes
+     * @throws FileSizeLimitExceededException if the file size exceeds the maximum allowed size
+     */
+    public void verifyFileSize(Long fileSize) {
+        if (fileSize > MAX_FILE_SIZE) {
+            throw new FileSizeLimitExceededException("The file is too large. Max size is " + MAX_FILE_SIZE + " bytes");
         }
     }
 
