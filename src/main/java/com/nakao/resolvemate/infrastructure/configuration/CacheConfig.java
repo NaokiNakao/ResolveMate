@@ -16,12 +16,21 @@ import java.time.Duration;
 @EnableCaching
 public class CacheConfig {
 
+    @Value("${spring.data.redis.host}")
+    private String host;
+
+    @Value("${spring.data.redis.port}")
+    private Integer port;
+
     @Value("${app.cache.duration}")
     private Long cacheDuration;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory();
+        LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory();
+        connectionFactory.setHostName(host);
+        connectionFactory.setPort(port);
+        return connectionFactory;
     }
 
     @Bean

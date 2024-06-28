@@ -1,25 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    container_name: db
-    image: postgres
-    restart: unless-stopped
-    ports:
-      - ${DB_PORT}:${DB_PORT}
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - ./data:/var/lib/postgresql/data
-      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     container_name: resolve_mate_backend
     image: resolve_mate_backend:1.0.0
@@ -37,6 +18,44 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - EXPIRATION=${EXPIRATION}
       - MAX_FILE_SIZE=${MAX_FILE_SIZE}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - CACHE_DURATION=${CACHE_DURATION}
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    container_name: db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    healthcheck:
+      test: "redis-cli ping"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - ./cache:/data

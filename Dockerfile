@@ -1,4 +1,4 @@
-FROM amazoncorretto:21
+FROM amazoncorretto:21-alpine
 
 COPY target/ResolveMate-0.0.1-SNAPSHOT.jar resolve-mate.jar
 
