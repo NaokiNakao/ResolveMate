@@ -81,8 +81,7 @@ public class TicketService {
 
         if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
-            String message = String.format("Unauthorized access for ticket with ID %s by user %s", ticketId, currentUser.getId());
-            logService.warn(this, message);
+            logService.warn(this, "Unauthorized access for ticket with ID " + ticketId + " by user " + currentUser.getId());
             throw new ForbiddenAccessException("Unauthorized access");
         }
     }
@@ -121,8 +120,7 @@ public class TicketService {
             throw new ForbiddenAccessException("Unauthorized access");
         }
 
-        String message = String.format("Found %d tickets for user %s", tickets.size(), currentUser.getId());
-        logService.info(this, message);
+        logService.info(this, "Found " + tickets.size() + " tickets for user " + currentUser.getId());
 
         return tickets;
     }
