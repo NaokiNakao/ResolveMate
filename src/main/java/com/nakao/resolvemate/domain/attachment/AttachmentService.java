@@ -45,6 +45,8 @@ public class AttachmentService {
      */
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = getCurrentComment(commentId);
+        verifyAuthorization(commentId);
+        verifyFileSize(file.getSize());
 
         try {
             byte[] compressedData = FileCompressionService.compressData(file.getBytes());
@@ -60,7 +62,7 @@ public class AttachmentService {
             logService.info(this, "Attachment created: " + commentId);
             return createdAttachment;
         } catch (IOException e) {
-            String message = "Error uploading file for comment ID: " + commentId;
+            String message = "Error uploading file for comment " + commentId;
             logService.error(this, message);
             throw new FileHandlingErrorException(message);
         }
@@ -75,6 +77,7 @@ public class AttachmentService {
      */
     public List<AttachmentDTO> getAttachmentsByCommentId(UUID commentId) {
         Comment comment = getCurrentComment(commentId);
+        verifyAuthorization(commentId);
 
         List<AttachmentDTO> attachments = attachmentRepository.findAllByComment(comment).stream()
                 .map(attachment -> {
@@ -85,7 +88,7 @@ public class AttachmentService {
                 })
                 .collect(Collectors.toList());
 
-        logService.info(this, "Found " + attachments.size() + " attachments for comment ID: " + commentId);
+        logService.info(this, "Found " + attachments.size() + " attachments for comment " + commentId);
         return attachments;
     }
 
@@ -95,13 +98,14 @@ public class AttachmentService {
      * @param commentId the ID of the comment to check authorization against
      * @throws ForbiddenAccessException if the user does not have access to the comment
      */
-    public void verifyAuthorization(UUID commentId) {
+    private void verifyAuthorization(UUID commentId) {
         User currentUser = securityService.getAuthenticatedUser();
 
         if (!commentRepository.hasAccessToComment(commentId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
-            logService.warn(this, "Unauthorized access attempt by user ID: " + currentUser.getId() + " to comment ID: " + commentId);
-            throw new ForbiddenAccessException("Unauthorized access");
+            String message = "Unauthorized access attempt by user " + currentUser.getId() + " to comment " + commentId;
+            logService.warn(this, message);
+            throw new ForbiddenAccessException(message);
         }
     }
 
@@ -111,7 +115,7 @@ public class AttachmentService {
      * @param fileSize the size of the file to verify, in bytes
      * @throws FileSizeLimitExceededException if the file size exceeds the maximum allowed size
      */
-    public void verifyFileSize(Long fileSize) {
+    private void verifyFileSize(Long fileSize) {
         if (fileSize > MAX_FILE_SIZE) {
             String message = "The file is too large. Max size is " + MAX_FILE_SIZE + " bytes";
             logService.warn(this, message);

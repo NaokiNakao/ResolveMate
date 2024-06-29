@@ -65,8 +65,8 @@ public class TicketService {
                     return new ResourceNotFoundException(message);
                 });
 
-        logService.info(this, "Ticket retrieved successfully: " + ticket.getId());
-
+        verifyAuthorization(id);
+        logService.info(this, "Ticket retrieved successfully: " + id);
         return TicketMapper.toDTO(ticket);
     }
 
@@ -76,13 +76,14 @@ public class TicketService {
      * @param ticketId the ID of the ticket to check authorization against
      * @throws ForbiddenAccessException if the user does not have access to the ticket
      */
-    public void verifyAuthorization(UUID ticketId) {
+    private void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
 
         if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
-            logService.warn(this, "Unauthorized access for ticket with ID " + ticketId + " by user " + currentUser.getId());
-            throw new ForbiddenAccessException("Unauthorized access");
+            String message = "Unauthorized access for " + ticketId + " by user " + currentUser.getId();
+            logService.warn(this, message);
+            throw new ForbiddenAccessException(message);
         }
     }
 

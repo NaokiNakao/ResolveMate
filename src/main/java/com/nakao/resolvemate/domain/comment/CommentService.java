@@ -34,6 +34,7 @@ public class CommentService {
      */
     public CommentDTO createComment(UUID ticketId, Comment comment) {
         Ticket ticket = getCurrentTicket(ticketId);
+        verifyAuthorization(ticketId);
         comment.setTicket(ticket);
         CommentDTO createdComment = CommentMapper.toDTO(commentRepository.save(comment));
         logService.info(this, "Comment created: " + createdComment.getId());
@@ -50,11 +51,13 @@ public class CommentService {
     public List<CommentDTO> getCommentsByTicketId(UUID ticketId) {
         Ticket ticket = getCurrentTicket(ticketId);
 
+        verifyAuthorization(ticketId);
+
         List<CommentDTO> comments = commentRepository.findAllByTicket(ticket).stream()
                 .map(CommentMapper::toDTO)
                 .toList();
 
-        logService.info(this, "Found " + comments.size() + " comments for ticket ID: " + ticketId);
+        logService.info(this, "Found " + comments.size() + " comments for ticket " + ticketId);
 
         return comments;
     }
@@ -65,13 +68,14 @@ public class CommentService {
      * @param ticketId the ID of the ticket to check authorization against
      * @throws ForbiddenAccessException if the user does not have access to the ticket
      */
-    public void verifyAuthorization(UUID ticketId) {
+    private void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
 
         if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
-            logService.warn(this, "Unauthorized access for ticket with ID " + ticketId + " by user " + currentUser.getId());
-            throw new ForbiddenAccessException("Unauthorized access");
+            String message = "Unauthorized access for ticket " + ticketId + " by user " + currentUser.getId();
+            logService.warn(this, message);
+            throw new ForbiddenAccessException(message);
         }
     }
 
