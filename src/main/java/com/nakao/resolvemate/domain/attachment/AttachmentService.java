@@ -2,7 +2,7 @@ package com.nakao.resolvemate.domain.attachment;
 
 import com.nakao.resolvemate.domain.comment.Comment;
 import com.nakao.resolvemate.domain.comment.CommentRepository;
-import com.nakao.resolvemate.domain.exception.FileHandlingException;
+import com.nakao.resolvemate.domain.exception.FileHandlingErrorException;
 import com.nakao.resolvemate.domain.exception.FileSizeLimitExceededException;
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
 import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
@@ -41,7 +41,7 @@ public class AttachmentService {
      * @param file the file to be attached
      * @return the created AttachmentDTO
      * @throws ResourceNotFoundException if the comment is not found
-     * @throws FileHandlingException if there is an error uploading the file
+     * @throws FileHandlingErrorException if there is an error uploading the file
      */
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = getCurrentComment(commentId);
@@ -62,7 +62,7 @@ public class AttachmentService {
         } catch (IOException e) {
             String message = "Error uploading file for comment ID: " + commentId;
             logService.error(this, message);
-            throw new FileHandlingException(message);
+            throw new FileHandlingErrorException(message);
         }
     }
 

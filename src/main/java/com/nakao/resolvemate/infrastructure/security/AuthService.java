@@ -1,4 +1,4 @@
-package com.nakao.resolvemate.infrastructure.jwt;
+package com.nakao.resolvemate.infrastructure.security;
 
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;

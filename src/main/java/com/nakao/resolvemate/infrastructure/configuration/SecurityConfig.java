@@ -1,7 +1,7 @@
 package com.nakao.resolvemate.infrastructure.configuration;
 
-import com.nakao.resolvemate.infrastructure.jwt.JwtAuthFilter;
-import com.nakao.resolvemate.infrastructure.jwt.JwtService;
+import com.nakao.resolvemate.infrastructure.security.JwtAuthFilter;
+import com.nakao.resolvemate.infrastructure.security.JwtService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

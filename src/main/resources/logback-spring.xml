@@ -31,4 +31,8 @@
         <appender-ref ref="FILE" />
     </logger>
 
+    <logger name="com.nakao.resolvemate.infrastructure.handler.SecurityExceptionHandler" level="info" additivity="false">
+        <appender-ref ref="FILE" />
+    </logger>
+
 </configuration>
