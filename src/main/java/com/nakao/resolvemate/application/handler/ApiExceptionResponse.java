@@ -19,4 +19,11 @@ public class ApiExceptionResponse {
         this.httpStatus = httpStatus;
         this.timestamp = ZonedDateTime.now(ZoneId.of("Z"));
     }
+
+    public ApiExceptionResponse(String message, RuntimeException e, HttpStatus httpStatus) {
+        this.message = message;
+        this.throwable = e;
+        this.httpStatus = httpStatus;
+        this.timestamp = ZonedDateTime.now(ZoneId.of("Z"));
+    }
 }
