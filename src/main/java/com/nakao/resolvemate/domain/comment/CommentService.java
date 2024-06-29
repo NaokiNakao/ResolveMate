@@ -33,13 +33,7 @@ public class CommentService {
      * @throws ResourceNotFoundException if the ticket is not found
      */
     public CommentDTO createComment(UUID ticketId, Comment comment) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> {
-                    String message = "Ticket not found with ID: " + ticketId;
-                    logService.warn(this, message);
-                    return new ResourceNotFoundException(message);
-                });
-
+        Ticket ticket = getCurrentTicket(ticketId);
         comment.setTicket(ticket);
         CommentDTO createdComment = CommentMapper.toDTO(commentRepository.save(comment));
         logService.info(this, "Comment created: " + createdComment.getId());
@@ -54,12 +48,7 @@ public class CommentService {
      * @throws ResourceNotFoundException if the ticket is not found
      */
     public List<CommentDTO> getCommentsByTicketId(UUID ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> {
-                    String message = "Ticket not found with ID: " + ticketId;
-                    logService.warn(this, message);
-                    return new ResourceNotFoundException(message);
-                });
+        Ticket ticket = getCurrentTicket(ticketId);
 
         List<CommentDTO> comments = commentRepository.findAllByTicket(ticket).stream()
                 .map(CommentMapper::toDTO)
@@ -84,6 +73,15 @@ public class CommentService {
             logService.warn(this, "Unauthorized access for ticket with ID " + ticketId + " by user " + currentUser.getId());
             throw new ForbiddenAccessException("Unauthorized access");
         }
+    }
+
+    private Ticket getCurrentTicket(UUID ticketId) {
+        return ticketRepository.findById(ticketId)
+                .orElseThrow(() -> {
+                    String message = "Ticket not found with ID: " + ticketId;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
     }
 
 }

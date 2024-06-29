@@ -44,12 +44,7 @@ public class AttachmentService {
      * @throws FileHandlingException if there is an error uploading the file
      */
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> {
-                    String message = "Comment not found with ID: " + commentId;
-                    logService.warn(this, message);
-                    return new ResourceNotFoundException(message);
-                });
+        Comment comment = getCurrentComment(commentId);
 
         try {
             byte[] compressedData = FileCompressionService.compressData(file.getBytes());
@@ -79,12 +74,7 @@ public class AttachmentService {
      * @throws ResourceNotFoundException if the comment is not found
      */
     public List<AttachmentDTO> getAttachmentsByCommentId(UUID commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> {
-                    String message = "Comment not found with ID: " + commentId;
-                    logService.warn(this, message);
-                    return new ResourceNotFoundException(message);
-                });
+        Comment comment = getCurrentComment(commentId);
 
         List<AttachmentDTO> attachments = attachmentRepository.findAllByComment(comment).stream()
                 .map(attachment -> {
@@ -127,6 +117,15 @@ public class AttachmentService {
             logService.warn(this, message);
             throw new FileSizeLimitExceededException(message);
         }
+    }
+
+    private Comment getCurrentComment(UUID commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> {
+                    String message = "Comment not found with ID: " + commentId;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
     }
 
 }
