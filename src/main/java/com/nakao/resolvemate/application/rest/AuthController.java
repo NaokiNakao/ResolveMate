@@ -1,9 +1,9 @@
 package com.nakao.resolvemate.application.rest;
 
-import com.nakao.resolvemate.infrastructure.auth.AuthResponse;
-import com.nakao.resolvemate.infrastructure.auth.AuthService;
-import com.nakao.resolvemate.infrastructure.auth.LoginRequest;
-import com.nakao.resolvemate.infrastructure.auth.RegisterRequest;
+import com.nakao.resolvemate.infrastructure.jwt.AuthResponse;
+import com.nakao.resolvemate.infrastructure.jwt.AuthService;
+import com.nakao.resolvemate.infrastructure.jwt.LoginRequest;
+import com.nakao.resolvemate.infrastructure.jwt.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

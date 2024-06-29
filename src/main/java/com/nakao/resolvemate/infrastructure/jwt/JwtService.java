@@ -1,4 +1,4 @@
-package com.nakao.resolvemate.infrastructure.auth;
+package com.nakao.resolvemate.infrastructure.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

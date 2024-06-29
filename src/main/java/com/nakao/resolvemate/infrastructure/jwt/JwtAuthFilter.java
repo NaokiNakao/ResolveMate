@@ -1,4 +1,4 @@
-package com.nakao.resolvemate.infrastructure.auth;
+package com.nakao.resolvemate.infrastructure.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

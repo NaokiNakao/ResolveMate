@@ -1,6 +1,6 @@
 package com.nakao.resolvemate.infrastructure.configuration;
 
-import com.nakao.resolvemate.infrastructure.auth.JwtAuthFilter;
+import com.nakao.resolvemate.infrastructure.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
