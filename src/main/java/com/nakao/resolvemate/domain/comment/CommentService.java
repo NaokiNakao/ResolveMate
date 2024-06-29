@@ -1,7 +1,7 @@
 package com.nakao.resolvemate.domain.comment;
 
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
-import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
+import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
 import com.nakao.resolvemate.domain.ticket.Ticket;
 import com.nakao.resolvemate.domain.ticket.TicketRepository;
 import com.nakao.resolvemate.domain.user.Role;
@@ -74,7 +74,7 @@ public class CommentService {
      * Verifies if the authenticated user has authorization to access the specified ticket.
      *
      * @param ticketId the ID of the ticket to check authorization against
-     * @throws UnauthorizedAccessException if the user does not have access to the ticket
+     * @throws ForbiddenAccessException if the user does not have access to the ticket
      */
     public void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
@@ -82,7 +82,7 @@ public class CommentService {
         if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
             logService.warn(this, "Unauthorized access for ticket with ID " + ticketId + " by user " + currentUser.getId());
-            throw new UnauthorizedAccessException("Unauthorized access");
+            throw new ForbiddenAccessException("Unauthorized access");
         }
     }
 

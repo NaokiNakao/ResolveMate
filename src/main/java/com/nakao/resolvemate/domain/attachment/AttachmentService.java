@@ -5,7 +5,7 @@ import com.nakao.resolvemate.domain.comment.CommentRepository;
 import com.nakao.resolvemate.domain.exception.FileHandlingException;
 import com.nakao.resolvemate.domain.exception.FileSizeLimitExceededException;
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
-import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
+import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.util.FileCompressionService;
@@ -103,7 +103,7 @@ public class AttachmentService {
      * Verifies if the authenticated user has authorization to access the specified comment.
      *
      * @param commentId the ID of the comment to check authorization against
-     * @throws UnauthorizedAccessException if the user does not have access to the comment
+     * @throws ForbiddenAccessException if the user does not have access to the comment
      */
     public void verifyAuthorization(UUID commentId) {
         User currentUser = securityService.getAuthenticatedUser();
@@ -111,7 +111,7 @@ public class AttachmentService {
         if (!commentRepository.hasAccessToComment(commentId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
             logService.warn(this, "Unauthorized access attempt by user ID: " + currentUser.getId() + " to comment ID: " + commentId);
-            throw new UnauthorizedAccessException("Unauthorized access");
+            throw new ForbiddenAccessException("Unauthorized access");
         }
     }
 

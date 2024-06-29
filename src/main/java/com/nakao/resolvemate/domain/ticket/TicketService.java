@@ -1,7 +1,7 @@
 package com.nakao.resolvemate.domain.ticket;
 
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
-import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
+import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.user.UserRepository;
@@ -55,7 +55,7 @@ public class TicketService {
      * @param id the UUID of the ticket
      * @return the TicketDTO
      * @throws ResourceNotFoundException if the ticket is not found
-     * @throws UnauthorizedAccessException if the user does not have access to the ticket
+     * @throws ForbiddenAccessException if the user does not have access to the ticket
      */
     public TicketDTO getTicketById(UUID id) {
         Ticket ticket = ticketRepository.findById(id)
@@ -74,7 +74,7 @@ public class TicketService {
      * Verifies if the authenticated user has authorization to access the specified ticket.
      *
      * @param ticketId the ID of the ticket to check authorization against
-     * @throws UnauthorizedAccessException if the user does not have access to the ticket
+     * @throws ForbiddenAccessException if the user does not have access to the ticket
      */
     public void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
@@ -83,7 +83,7 @@ public class TicketService {
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
             String message = String.format("Unauthorized access for ticket with ID %s by user %s", ticketId, currentUser.getId());
             logService.warn(this, message);
-            throw new UnauthorizedAccessException("Unauthorized access");
+            throw new ForbiddenAccessException("Unauthorized access");
         }
     }
 
@@ -104,7 +104,7 @@ public class TicketService {
      * Retrieves the list of tickets accessible to the authenticated user based on their role.
      *
      * @return a list of accessible tickets
-     * @throws UnauthorizedAccessException if the user does not have the necessary permissions
+     * @throws ForbiddenAccessException if the user does not have the necessary permissions
      */
     private List<Ticket> getTicketsForCurrentUser() {
         User currentUser = securityService.getAuthenticatedUser();
@@ -118,7 +118,7 @@ public class TicketService {
         } else if (currentUserRole == Role.SUPPORT_AGENT) {
             tickets = ticketRepository.findAllBySupportAgent(currentUser);
         } else {
-            throw new UnauthorizedAccessException("Unauthorized access");
+            throw new ForbiddenAccessException("Unauthorized access");
         }
 
         String message = String.format("Found %d tickets for user %s", tickets.size(), currentUser.getId());

@@ -3,7 +3,7 @@ package com.nakao.resolvemate.application.handler;
 import com.nakao.resolvemate.domain.exception.FileHandlingException;
 import com.nakao.resolvemate.domain.exception.FileSizeLimitExceededException;
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
-import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
+import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,9 +19,9 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(response, httpStatus);
     }
 
-    @ExceptionHandler(value = {UnauthorizedAccessException.class})
-    public ResponseEntity<Object> handleUnauthorizedAccessException(UnauthorizedAccessException e) {
-        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+    @ExceptionHandler(value = {ForbiddenAccessException.class})
+    public ResponseEntity<Object> handleForbiddenAccessException(ForbiddenAccessException e) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         ApiExceptionResponse response = new ApiExceptionResponse(e, httpStatus);
         return new ResponseEntity<>(response, httpStatus);
     }
