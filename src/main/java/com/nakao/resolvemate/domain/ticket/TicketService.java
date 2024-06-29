@@ -5,6 +5,7 @@ import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.user.UserRepository;
+import com.nakao.resolvemate.domain.util.LogService;
 import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,17 +22,19 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final LogService<TicketService> logService;
 
     /**
-     * Creates a new ticket, assigns it to the authenticated user and a support agent,
-     * sets the creation date, and saves it in the repository.
+     * Creates a new ticket, assigns it to the authenticated user and a support agent
      *
      * @param ticket the ticket to be created
      * @return the created TicketDTO
      */
     public TicketDTO createTicket(Ticket ticket) {
         ticket.setSupportAgent(assignTicketToAgent());
-        return TicketMapper.toDTO(ticketRepository.save(ticket));
+        Ticket createdTicket = ticketRepository.save(ticket);
+        logService.info(this, "Ticket created: " + createdTicket.getId());
+        return TicketMapper.toDTO(createdTicket);
     }
 
     /**
@@ -56,9 +59,32 @@ public class TicketService {
      */
     public TicketDTO getTicketById(UUID id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
+                .orElseThrow(() -> {
+                    String message = "Ticket not found with id: " + id;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
+
+        logService.info(this, "Ticket retrieved successfully: " + ticket.getId());
 
         return TicketMapper.toDTO(ticket);
+    }
+
+    /**
+     * Verifies if the authenticated user has authorization to access the specified ticket.
+     *
+     * @param ticketId the ID of the ticket to check authorization against
+     * @throws UnauthorizedAccessException if the user does not have access to the ticket
+     */
+    public void verifyAuthorization(UUID ticketId) {
+        User currentUser = securityService.getAuthenticatedUser();
+
+        if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
+                !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
+            String message = String.format("Unauthorized access for ticket with ID %s by user %s", ticketId, currentUser.getId());
+            logService.warn(this, message);
+            throw new UnauthorizedAccessException("Unauthorized access");
+        }
     }
 
     /**
@@ -83,31 +109,22 @@ public class TicketService {
     private List<Ticket> getTicketsForCurrentUser() {
         User currentUser = securityService.getAuthenticatedUser();
         Role currentUserRole = currentUser.getRole();
+        List<Ticket> tickets;
 
         if (currentUserRole == Role.ADMIN) {
-            return ticketRepository.findAll();
+            tickets = ticketRepository.findAll();
         } else if (currentUserRole == Role.CUSTOMER) {
-            return ticketRepository.findAllByCustomer(currentUser);
+            tickets = ticketRepository.findAllByCustomer(currentUser);
         } else if (currentUserRole == Role.SUPPORT_AGENT) {
-            return ticketRepository.findAllBySupportAgent(currentUser);
+            tickets = ticketRepository.findAllBySupportAgent(currentUser);
         } else {
             throw new UnauthorizedAccessException("Unauthorized access");
         }
-    }
 
-    /**
-     * Verifies if the authenticated user has authorization to access the specified ticket.
-     *
-     * @param ticketId the ID of the ticket to check authorization against
-     * @throws UnauthorizedAccessException if the user does not have access to the ticket
-     */
-    public void verifyAuthorization(UUID ticketId) {
-        User currentUser = securityService.getAuthenticatedUser();
+        String message = String.format("Found %d tickets for user %s", tickets.size(), currentUser.getId());
+        logService.info(this, message);
 
-        if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
-                !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
-            throw new UnauthorizedAccessException("Unauthorized access");
-        }
+        return tickets;
     }
 
 }

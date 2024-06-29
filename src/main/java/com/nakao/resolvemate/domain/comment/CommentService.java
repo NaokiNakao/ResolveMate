@@ -6,16 +6,14 @@ import com.nakao.resolvemate.domain.ticket.Ticket;
 import com.nakao.resolvemate.domain.ticket.TicketRepository;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
+import com.nakao.resolvemate.domain.util.LogService;
 import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +22,7 @@ public class CommentService {
     private final TicketRepository ticketRepository;
     private final CommentRepository commentRepository;
     private final SecurityService securityService;
+    private final LogService<CommentService> logService;
 
     /**
      * Creates a new comment for a specific ticket.
@@ -33,13 +32,18 @@ public class CommentService {
      * @return the created comment as a CommentDTO
      * @throws ResourceNotFoundException if the ticket is not found
      */
-    @CacheEvict(value = "comments", key = "#ticketId")
     public CommentDTO createComment(UUID ticketId, Comment comment) {
         Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> {
+                    String message = "Ticket not found with ID: " + ticketId;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
 
         comment.setTicket(ticket);
-        return CommentMapper.toDTO(commentRepository.save(comment));
+        CommentDTO createdComment = CommentMapper.toDTO(commentRepository.save(comment));
+        logService.info(this, "Comment created: " + createdComment.getId());
+        return createdComment;
     }
 
     /**
@@ -49,14 +53,21 @@ public class CommentService {
      * @return a list of CommentDTOs for the comments associated with the ticket
      * @throws ResourceNotFoundException if the ticket is not found
      */
-    @Cacheable(value = "comments", key = "#ticketId")
     public List<CommentDTO> getCommentsByTicketId(UUID ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> {
+                    String message = "Ticket not found with ID: " + ticketId;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
 
-        return commentRepository.findAllByTicket(ticket).stream()
+        List<CommentDTO> comments = commentRepository.findAllByTicket(ticket).stream()
                 .map(CommentMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
+
+        logService.info(this, "Found " + comments.size() + " comments for ticket ID: " + ticketId);
+
+        return comments;
     }
 
     /**
@@ -70,6 +81,7 @@ public class CommentService {
 
         if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
+            logService.warn(this, "Unauthorized access for ticket with ID " + ticketId + " by user " + currentUser.getId());
             throw new UnauthorizedAccessException("Unauthorized access");
         }
     }

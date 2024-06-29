@@ -9,11 +9,10 @@ import com.nakao.resolvemate.domain.exception.UnauthorizedAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.util.FileCompressionService;
+import com.nakao.resolvemate.domain.util.LogService;
 import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +29,7 @@ public class AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final CommentRepository commentRepository;
     private final SecurityService securityService;
+    private final LogService<AttachmentService> logService;
 
     @Value("${app.file.max-size}")
     private Long MAX_FILE_SIZE;
@@ -43,10 +43,13 @@ public class AttachmentService {
      * @throws ResourceNotFoundException if the comment is not found
      * @throws FileHandlingException if there is an error uploading the file
      */
-    @CacheEvict(value = "attachments", key = "#commentId")
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> {
+                    String message = "Comment not found with ID: " + commentId;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
 
         try {
             byte[] compressedData = FileCompressionService.compressData(file.getBytes());
@@ -58,9 +61,13 @@ public class AttachmentService {
                     .data(compressedData)
                     .build();
 
-            return AttachmentMapper.toDTO(attachmentRepository.save(attachment));
+            AttachmentDTO createdAttachment = AttachmentMapper.toDTO(attachmentRepository.save(attachment));
+            logService.info(this, "Attachment created: " + commentId);
+            return createdAttachment;
         } catch (IOException e) {
-            throw new FileHandlingException("Error uploading file");
+            String message = "Error uploading file for comment ID: " + commentId;
+            logService.error(this, message);
+            throw new FileHandlingException(message);
         }
     }
 
@@ -71,12 +78,15 @@ public class AttachmentService {
      * @return a list of AttachmentDTOs
      * @throws ResourceNotFoundException if the comment is not found
      */
-    @Cacheable(value = "attachments", key = "#commentId")
     public List<AttachmentDTO> getAttachmentsByCommentId(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> {
+                    String message = "Comment not found with ID: " + commentId;
+                    logService.warn(this, message);
+                    return new ResourceNotFoundException(message);
+                });
 
-        return attachmentRepository.findAllByComment(comment).stream()
+        List<AttachmentDTO> attachments = attachmentRepository.findAllByComment(comment).stream()
                 .map(attachment -> {
                     byte[] decompressedData = FileCompressionService.decompressData(attachment.getData());
                     AttachmentDTO dto = AttachmentMapper.toDTO(attachment);
@@ -84,6 +94,9 @@ public class AttachmentService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+
+        logService.info(this, "Found " + attachments.size() + " attachments for comment ID: " + commentId);
+        return attachments;
     }
 
     /**
@@ -97,6 +110,7 @@ public class AttachmentService {
 
         if (!commentRepository.hasAccessToComment(commentId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
+            logService.warn(this, "Unauthorized access attempt by user ID: " + currentUser.getId() + " to comment ID: " + commentId);
             throw new UnauthorizedAccessException("Unauthorized access");
         }
     }
@@ -109,7 +123,9 @@ public class AttachmentService {
      */
     public void verifyFileSize(Long fileSize) {
         if (fileSize > MAX_FILE_SIZE) {
-            throw new FileSizeLimitExceededException("The file is too large. Max size is " + MAX_FILE_SIZE + " bytes");
+            String message = "The file is too large. Max size is " + MAX_FILE_SIZE + " bytes";
+            logService.warn(this, message);
+            throw new FileSizeLimitExceededException(message);
         }
     }
 
