@@ -22,7 +22,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - CACHE_DURATION=${CACHE_DURATION}
       - MAIL_HOST=${MAIL_HOST}
-      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_SMTP_PORT=${MAIL_SMTP_PORT}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
     volumes:
@@ -65,3 +65,11 @@ services:
       retries: 10
     volumes:
       - ./cache:/data
+
+  mailserver:
+    container_name: mailhog
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - ${MAIL_SMTP_PORT}:${MAIL_SMTP_PORT}
+      - ${MAIL_UI_PORT}:${MAIL_UI_PORT}
