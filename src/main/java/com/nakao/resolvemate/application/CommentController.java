@@ -1,4 +1,4 @@
-package com.nakao.resolvemate.application.rest;
+package com.nakao.resolvemate.application;
 
 import com.nakao.resolvemate.domain.comment.Comment;
 import com.nakao.resolvemate.domain.comment.CommentDTO;
