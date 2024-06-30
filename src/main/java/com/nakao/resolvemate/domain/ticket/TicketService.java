@@ -5,7 +5,6 @@ import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
 import com.nakao.resolvemate.domain.user.Role;
 import com.nakao.resolvemate.domain.user.User;
 import com.nakao.resolvemate.domain.user.UserRepository;
-import com.nakao.resolvemate.domain.util.LogService;
 import com.nakao.resolvemate.domain.util.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,10 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
-    private final LogService<TicketService> logService;
 
     public TicketDTO createTicket(Ticket ticket) {
         ticket.setSupportAgent(assignTicketToAgent());
         Ticket createdTicket = ticketRepository.save(ticket);
-        logService.info(this, "Ticket created: " + createdTicket.getId());
         return TicketMapper.toDTO(createdTicket);
     }
 
@@ -40,14 +37,9 @@ public class TicketService {
 
     public TicketDTO getTicketById(UUID id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> {
-                    String message = "Ticket not found with id: " + id;
-                    logService.warn(this, message);
-                    return new ResourceNotFoundException(message);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
 
         verifyAuthorization(id);
-        logService.info(this, "Ticket retrieved successfully: " + id);
         return TicketMapper.toDTO(ticket);
     }
 
@@ -56,9 +48,7 @@ public class TicketService {
 
         if (!ticketRepository.hasAccessToTicket(ticketId, currentUser.getId()) &&
                 !Objects.equals(currentUser.getRole(), Role.ADMIN)) {
-            String message = "Unauthorized access for " + ticketId + " by user " + currentUser.getId();
-            logService.warn(this, message);
-            throw new ForbiddenAccessException(message);
+            throw new ForbiddenAccessException("Unauthorized access for " + ticketId + " by user " + currentUser.getId());
         }
     }
 
@@ -83,8 +73,6 @@ public class TicketService {
         } else {
             throw new ForbiddenAccessException("Unauthorized access");
         }
-
-        logService.info(this, "Found " + tickets.size() + " tickets for user " + currentUser.getId());
 
         return tickets;
     }
