@@ -10,13 +10,6 @@ import java.util.zip.Inflater;
 
 public class FileCompressionService {
 
-    /**
-     * Compresses the given data using Deflater with best compression level.
-     *
-     * @param data the data to compress
-     * @return the compressed data as byte array
-     * @throws FileHandlingErrorException if there is an error compressing the data
-     */
     public static byte[] compressData(byte[] data) {
         Deflater deflater = new Deflater();
         deflater.setLevel(Deflater.BEST_COMPRESSION);
@@ -40,13 +33,6 @@ public class FileCompressionService {
         return outputStream.toByteArray();
     }
 
-    /**
-     * Decompresses the given data using Inflater.
-     *
-     * @param data the data to decompress
-     * @return the decompressed data as byte array
-     * @throws FileHandlingErrorException if there is an error decompressing the data
-     */
     public static byte[] decompressData(byte[] data) {
         Inflater inflater = new Inflater();
         inflater.setInput(data);

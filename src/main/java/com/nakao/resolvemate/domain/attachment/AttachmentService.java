@@ -34,15 +34,6 @@ public class AttachmentService {
     @Value("${app.file.max-size}")
     private Long MAX_FILE_SIZE;
 
-    /**
-     * Creates a new attachment for a given comment.
-     *
-     * @param commentId the ID of the comment to which the attachment will be added
-     * @param file the file to be attached
-     * @return the created AttachmentDTO
-     * @throws ResourceNotFoundException if the comment is not found
-     * @throws FileHandlingErrorException if there is an error uploading the file
-     */
     public AttachmentDTO createAttachment(UUID commentId, MultipartFile file) {
         Comment comment = getCurrentComment(commentId);
         verifyAuthorization(commentId);
@@ -68,13 +59,6 @@ public class AttachmentService {
         }
     }
 
-    /**
-     * Retrieves all attachments for a given comment and decompresses the data.
-     *
-     * @param commentId the ID of the comment whose attachments are to be retrieved
-     * @return a list of AttachmentDTOs
-     * @throws ResourceNotFoundException if the comment is not found
-     */
     public List<AttachmentDTO> getAttachmentsByCommentId(UUID commentId) {
         Comment comment = getCurrentComment(commentId);
         verifyAuthorization(commentId);
@@ -92,12 +76,6 @@ public class AttachmentService {
         return attachments;
     }
 
-    /**
-     * Verifies if the authenticated user has authorization to access the specified comment.
-     *
-     * @param commentId the ID of the comment to check authorization against
-     * @throws ForbiddenAccessException if the user does not have access to the comment
-     */
     private void verifyAuthorization(UUID commentId) {
         User currentUser = securityService.getAuthenticatedUser();
 
@@ -109,12 +87,6 @@ public class AttachmentService {
         }
     }
 
-    /**
-     * Verifies if the given file size exceeds the maximum allowed file size.
-     *
-     * @param fileSize the size of the file to verify, in bytes
-     * @throws FileSizeLimitExceededException if the file size exceeds the maximum allowed size
-     */
     private void verifyFileSize(Long fileSize) {
         if (fileSize > MAX_FILE_SIZE) {
             String message = "The file is too large. Max size is " + MAX_FILE_SIZE + " bytes";

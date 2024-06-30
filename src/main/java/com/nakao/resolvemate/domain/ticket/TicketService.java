@@ -24,12 +24,6 @@ public class TicketService {
     private final SecurityService securityService;
     private final LogService<TicketService> logService;
 
-    /**
-     * Creates a new ticket, assigns it to the authenticated user and a support agent
-     *
-     * @param ticket the ticket to be created
-     * @return the created TicketDTO
-     */
     public TicketDTO createTicket(Ticket ticket) {
         ticket.setSupportAgent(assignTicketToAgent());
         Ticket createdTicket = ticketRepository.save(ticket);
@@ -37,11 +31,6 @@ public class TicketService {
         return TicketMapper.toDTO(createdTicket);
     }
 
-    /**
-     * Retrieves all tickets accessible to the authenticated user.
-     *
-     * @return a list of TicketDTOs
-     */
     public List<TicketDTO> getAllTickets() {
         List<Ticket> tickets = getTicketsForCurrentUser();
         return tickets.stream()
@@ -49,14 +38,6 @@ public class TicketService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Retrieves a ticket by its ID if the authenticated user has access to it.
-     *
-     * @param id the UUID of the ticket
-     * @return the TicketDTO
-     * @throws ResourceNotFoundException if the ticket is not found
-     * @throws ForbiddenAccessException if the user does not have access to the ticket
-     */
     public TicketDTO getTicketById(UUID id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> {
@@ -70,12 +51,6 @@ public class TicketService {
         return TicketMapper.toDTO(ticket);
     }
 
-    /**
-     * Verifies if the authenticated user has authorization to access the specified ticket.
-     *
-     * @param ticketId the ID of the ticket to check authorization against
-     * @throws ForbiddenAccessException if the user does not have access to the ticket
-     */
     private void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
 
@@ -87,12 +62,6 @@ public class TicketService {
         }
     }
 
-    /**
-     * Assigns a ticket to a support agent with the least number of tickets assigned.
-     *
-     * @return the User assigned as the support agent
-     * @throws ResourceNotFoundException if no support agents are found
-     */
     private User assignTicketToAgent() {
         List<User> agents = userRepository.findAllByRole(Role.SUPPORT_AGENT);
         return agents.stream()
@@ -100,12 +69,6 @@ public class TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("No support agents found"));
     }
 
-    /**
-     * Retrieves the list of tickets accessible to the authenticated user based on their role.
-     *
-     * @return a list of accessible tickets
-     * @throws ForbiddenAccessException if the user does not have the necessary permissions
-     */
     private List<Ticket> getTicketsForCurrentUser() {
         User currentUser = securityService.getAuthenticatedUser();
         Role currentUserRole = currentUser.getRole();

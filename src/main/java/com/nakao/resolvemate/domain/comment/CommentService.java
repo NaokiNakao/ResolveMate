@@ -24,14 +24,6 @@ public class CommentService {
     private final SecurityService securityService;
     private final LogService<CommentService> logService;
 
-    /**
-     * Creates a new comment for a specific ticket.
-     *
-     * @param ticketId the UUID of the ticket to comment on
-     * @param comment the comment to create
-     * @return the created comment as a CommentDTO
-     * @throws ResourceNotFoundException if the ticket is not found
-     */
     public CommentDTO createComment(UUID ticketId, Comment comment) {
         Ticket ticket = getCurrentTicket(ticketId);
         verifyAuthorization(ticketId);
@@ -41,13 +33,6 @@ public class CommentService {
         return createdComment;
     }
 
-    /**
-     * Retrieves all comments for a specific ticket, ensuring the current user has access to the ticket.
-     *
-     * @param ticketId the UUID of the ticket
-     * @return a list of CommentDTOs for the comments associated with the ticket
-     * @throws ResourceNotFoundException if the ticket is not found
-     */
     public List<CommentDTO> getCommentsByTicketId(UUID ticketId) {
         Ticket ticket = getCurrentTicket(ticketId);
 
@@ -62,12 +47,6 @@ public class CommentService {
         return comments;
     }
 
-    /**
-     * Verifies if the authenticated user has authorization to access the specified ticket.
-     *
-     * @param ticketId the ID of the ticket to check authorization against
-     * @throws ForbiddenAccessException if the user does not have access to the ticket
-     */
     private void verifyAuthorization(UUID ticketId) {
         User currentUser = securityService.getAuthenticatedUser();
 
