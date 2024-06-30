@@ -1,6 +1,6 @@
 package com.nakao.resolvemate.infrastructure.handler;
 
-import com.nakao.resolvemate.domain.util.LogService;
+import com.nakao.resolvemate.infrastructure.logging.LogService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;

@@ -1,26 +1,26 @@
-package com.nakao.resolvemate.infrastructure.audit;
+package com.nakao.resolvemate.infrastructure.logging;
 
-import com.nakao.resolvemate.domain.util.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LogServiceImpl<T> implements LogService<T> {
+public class LogService<T> {
 
-    @Override
+    @Async
     public void info(T source, String message) {
         Logger sourceLogger = LoggerFactory.getLogger(source.getClass());
         sourceLogger.info(message);
     }
 
-    @Override
+    @Async
     public void warn(T source, String message) {
         Logger sourceLogger = LoggerFactory.getLogger(source.getClass());
         sourceLogger.warn(message);
     }
 
-    @Override
+    @Async
     public void error(T source, String message) {
         Logger sourceLogger = LoggerFactory.getLogger(source.getClass());
         sourceLogger.error(message);

@@ -4,7 +4,7 @@ import com.nakao.resolvemate.domain.exception.FileHandlingErrorException;
 import com.nakao.resolvemate.domain.exception.FileSizeLimitExceededException;
 import com.nakao.resolvemate.domain.exception.ResourceNotFoundException;
 import com.nakao.resolvemate.domain.exception.ForbiddenAccessException;
-import com.nakao.resolvemate.domain.util.LogService;
+import com.nakao.resolvemate.infrastructure.logging.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

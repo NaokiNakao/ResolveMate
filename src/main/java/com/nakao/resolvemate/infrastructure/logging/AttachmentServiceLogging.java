@@ -1,7 +1,6 @@
 package com.nakao.resolvemate.infrastructure.logging;
 
 import com.nakao.resolvemate.domain.attachment.AttachmentDTO;
-import com.nakao.resolvemate.domain.util.LogService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
