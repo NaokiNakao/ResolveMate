@@ -58,4 +58,9 @@ public class TicketRepositoryImpl implements TicketRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean hasAccessToTicket(UUID ticketId, UUID userId) {
+        return repository.hasAccessToTicket(ticketId, userId);
+    }
+
 }

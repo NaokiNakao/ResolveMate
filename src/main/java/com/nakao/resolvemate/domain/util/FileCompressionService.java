@@ -1,6 +1,6 @@
 package com.nakao.resolvemate.domain.util;
 
-import com.nakao.resolvemate.domain.exception.FileHandlingException;
+import com.nakao.resolvemate.domain.exception.FileHandlingErrorException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class FileCompressionService {
         try {
             outputStream.close();
         } catch (IOException e) {
-            throw new FileHandlingException("Error compressing file");
+            throw new FileHandlingErrorException("Error compressing file");
         }
 
         return outputStream.toByteArray();
@@ -47,7 +47,7 @@ public class FileCompressionService {
             }
             outputStream.close();
         } catch (IOException | DataFormatException e) {
-            throw new FileHandlingException("Error decompressing file");
+            throw new FileHandlingErrorException("Error decompressing file");
         }
 
         return outputStream.toByteArray();

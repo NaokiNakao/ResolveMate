@@ -8,6 +8,8 @@ import com.nakao.resolvemate.infrastructure.persistance.mapper.CommentMapper;
 import com.nakao.resolvemate.infrastructure.persistance.mapper.TicketMapper;
 import com.nakao.resolvemate.infrastructure.persistance.repository.jpa.JpaCommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,12 +24,14 @@ public class CommentRepositoryImpl implements CommentRepository {
     private final JpaCommentRepository repository;
 
     @Override
+    @CacheEvict(value = "comments", key = "#comment.ticket.id")
     public Comment save(Comment comment) {
         CommentEntity commentEntity = CommentMapper.toEntity(comment);
         return CommentMapper.toModel(repository.save(commentEntity));
     }
 
     @Override
+    @Cacheable(value = "comments", key = "#ticket.id")
     public List<Comment> findAllByTicket(Ticket ticket) {
         return repository.findAllByTicket(TicketMapper.toEntity(ticket)).stream()
                 .map(CommentMapper::toModel)
@@ -37,6 +41,11 @@ public class CommentRepositoryImpl implements CommentRepository {
     @Override
     public Optional<Comment> findById(UUID id) {
         return repository.findById(id).map(CommentMapper::toModel);
+    }
+
+    @Override
+    public boolean hasAccessToComment(UUID commentId, UUID userId) {
+        return repository.hasAccessToComment(commentId, userId);
     }
 
 }

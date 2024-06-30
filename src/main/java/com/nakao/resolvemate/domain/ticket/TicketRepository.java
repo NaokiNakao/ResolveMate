@@ -20,4 +20,6 @@ public interface TicketRepository {
 
     List<Ticket> findAllBySupportAgent(User supportAgent);
 
+    boolean hasAccessToTicket(UUID ticketId, UUID userId);
+
 }

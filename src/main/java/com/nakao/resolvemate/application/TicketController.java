@@ -1,4 +1,4 @@
-package com.nakao.resolvemate.application.rest;
+package com.nakao.resolvemate.application;
 
 import com.nakao.resolvemate.domain.ticket.Ticket;
 import com.nakao.resolvemate.domain.ticket.TicketDTO;

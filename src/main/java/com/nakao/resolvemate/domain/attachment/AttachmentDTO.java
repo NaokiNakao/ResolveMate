@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttachmentDTO {
+public class AttachmentDTO implements Serializable {
     private UUID id;
     private UUID commentId;
     private String fileName;
